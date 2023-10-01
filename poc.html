@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Custom Authorization Header without Page Reload</title>
+</head>
+<body>
+  <button id="sendRequest">Send Request</button>
+  <div id="response"></div>
+  
+  <script>
+    // Function to send the XMLHttpRequest
+    function sendXHR() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "https://api.example.com/contact/validateaddress.json?country=xss-payload", true);
+      xhr.setRequestHeader("Authorization", "Basic cmVtb3RlLXNpZ251cDpzfGdubTN1cA==");
+      
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // Handle the response here
+          document.getElementById("response").textContent = xhr.responseText;
+        }
+      };
+      
+      xhr.send();
+    }
+    
+    // Attach an event listener to a button (or any other trigger)
+    document.getElementById("sendRequest").addEventListener("click", sendXHR);
+  </script>
+</body>
+</html>
